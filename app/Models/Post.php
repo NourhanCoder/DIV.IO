@@ -12,4 +12,13 @@ class Post extends Model
     public function User(){
         return $this->belongsTo(User::class);
     }
+
+    //لعرض صوره افتراضيه بحيث ان لو البوست ملهوش صوره
+    public function image()
+    {
+        if($this->image){
+            return asset('public/images/' . $this->image);
+        }
+        return asset( "default.jpg");
+    }
 }

@@ -1,43 +1,42 @@
 @extends('layout.app')
 @section('content')
     <div class="col-12">
-        <a href="{{ url('posts/create') }}" class="btn btn-primary my-3">Add New Post</a>
-        <h1 class="p-3 border text-center my-3">All Posts</h1>
+        <a href="{{ route('users.create') }}" class="btn btn-primary my-3">Add New User</a>
+        <h1 class="p-3 border text-center my-3">All Users</h1>
     </div>
     <div class="container">
         <div class="row">
             <div class="col-12">
         
-                @if(session()->get('success') != null)
-                    <h3 class="text-success my-2">{{session()->get('success')}}</h3>  
-                @endif
+                @include('inc.messages')
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Writer</th>
-                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Type</th>
+                            <th>Posts</th>
                             <th>Edit</th>
                             <th>Delete</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($posts as $post)
+                        @foreach($users as $user)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
-                            <td>{{ $post->title }}</td>
-                            <td>{{ Str::limit($post->description, 50) }}</td>
-                            <td>{{ $post->user->name }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{!! $user->type() !!}</td>
                             <td>
-                                <img src="{{ $post->image() }}" height="100" width="100" alt="">
+                                <a href="{{ route('user.posts', $user->id) }}" class="btn btn-primary">Show</a>
                             </td>
                             <td>
-                                <a href="{{ url('posts/' . $post->id . '/edit') }}" class="btn btn-info">Edit</a>
+                                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-info">Edit</a>
                             </td>
+                            
                             <td>
-                                <form action="{{ url('posts/' . $post->id) }}" method="post">
+                                <form action="{{ route('users.destroy',$user->id) }}" method="post">
                                     @method('DELETE')
                                     @csrf
                                     <input type="submit" value="Delete" class="btn btn-danger">
@@ -48,7 +47,7 @@
                     </tbody>
                 </table>
                 <div>
-                    {{ $posts->links() }}
+                    {{ $users->links() }}
                 </div>
 
             </div>
