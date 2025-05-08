@@ -2,29 +2,31 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Tag;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::orderBy('id', 'DESC')->paginate();
+        $posts = Post::orderBy('id', 'DESC')->paginate(); //عرض البوستات من الاحدث للاقدم
         return view('posts.index', ['posts' => $posts]);
     }
 
     public function home()
     {
-        $posts = Post::paginate();
+        $posts = Post::orderBy('id', 'DESC')->paginate();
         return view('home', ['posts' => $posts]);
     }
 
     public function create()
     {
         $users = User::select('id', 'name')->get();
-
-        return view('posts.add', compact('users'));
+        $tags = Tag::select('id', 'name')->get();
+        return view('posts.add', compact('users', 'tags'));
     }
 
     public function store(Request $request)
@@ -50,6 +52,10 @@ class PostController extends Controller
         //$post->image = $image;
         $post->image = $imageName;
         $post->save();
+        // dd($request->tags);
+        // sync بيحدّث العلاقة بين البوست والتاجز: يضيف الجديد ويحذف اللي مش متعلم
+        // ربط التاجز المختارة بالبوست الحالي باستخدام جدول الربط (pivot table)
+        $post->tags()->sync($request->tags); 
         return back()->with('success', 'Post Added Successfully');
         // dd($request->all());
     }
@@ -72,7 +78,9 @@ class PostController extends Controller
     public function edit($id)
     {
         $post = Post::findOrFail($id);
-        return view('posts.edit', ['post' => $post]);
+        $users = User::select('id', 'name')->get();
+        $tags = Tag::select('id', 'name')->get();
+        return view('posts.edit', ['post' => $post, 'users' => $users, 'tags' => $tags]);
     }
 
     public function update($id, Request $request)
@@ -81,7 +89,24 @@ class PostController extends Controller
         $post->title = $request->title;
         $post->description = $request->description;
         $post->user_id = $request->user_id;
+
+        if ($request->hasFile('image')) {
+            // حذف الصورة القديمة من فولدر التخزين
+            $oldImagePath = storage_path('app/public/images/' . $post->image);
+            if (File::exists($oldImagePath)) {
+                File::delete($oldImagePath);
+            }
+    
+            // حفظ الصورة الجديدة
+            $imageName = time() . '.' . $request->file('image')->getClientOriginalExtension();
+            $request->file('image')->storeAs('images', $imageName, 'public');
+            $post->image = $imageName;
+        
+        }
         $post->save();
+
+        $post->tags()->detach(); //هتمسح القديم و تضيف الجديد
+        $post->tags()->sync($request->tags);
         return redirect('posts')->with('success', 'Post Updated Successfully');
     }
 

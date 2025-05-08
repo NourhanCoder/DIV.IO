@@ -5,7 +5,7 @@
     <h1 class="p-3  text-center my-3">Edit Post Info</h1>
 </div>
 <div class="col-8 mx-auto">
-    <form action="{{ url('posts/' . $post->id) }}" method="post" class="form border p-3">
+    <form action="{{ url('posts/' . $post->id) }}" method="post" class="form border p-3" enctype="multipart/form-data">
         @method('PUT')
         @csrf
         @if($errors->any())
@@ -27,11 +27,25 @@
        <textarea class="form-control" name="description"  rows="7">{{ $post->description }}</textarea>
     </div>
     <div class="mb-3">
+        <label for="">Tags</label>
+        <select name="tags[]" multiple id="" class="form-control">
+            @foreach ($tags as $tag )
+            <option @if($post->tags->contains($tag)) selected @endif value="{{ $tag->id }}">{{$tag->name}}</option>
+                
+            @endforeach
+        </select>
+    </div>
+    <div class="mb-3">
         <label for="">Writer</label>
        <select name="user_id" class="form-control">
-        <option value="1">Nourhan</option>
-        <option value="2">Moustafa</option>
+        @foreach ($users as $user )
+        <option @selected($user->id == $post->user_id) value="{{ $user->id }}">{{ $user->name }}</option>
+        @endforeach
        </select>
+    </div>
+    <div class="mb-3">
+        <label for="">Post Image</label>
+        <input type="file" class="form-control" name="image">
     </div>
     <div class="mb-3">
         

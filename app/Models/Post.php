@@ -9,7 +9,8 @@ class Post extends Model
 {
     use HasFactory;
 
-    public function User(){
+    public function User()
+    {
         return $this->belongsTo(User::class);
     }
 
@@ -20,5 +21,10 @@ class Post extends Model
             return asset('public/images/' . $this->image);
         }
         return asset( "default.jpg");
+    }
+
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
     }
 }
