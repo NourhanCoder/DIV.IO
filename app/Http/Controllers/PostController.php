@@ -7,6 +7,7 @@ use App\Models\Post;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File; //بنستورد كلاس File من Laravel علشان نقدر نستخدم دوال زي exists() و delete() لحذف الملفات من السيرفر
+use Illuminate\Support\Facades\Gate;
 
 class PostController extends Controller
 {
@@ -24,6 +25,7 @@ class PostController extends Controller
 
     public function create()
     {
+        Gate::authorize('create-post'); //to avoid that anyone can open the create link directly.
         $users = User::select('id', 'name')->get();
         $tags = Tag::select('id', 'name')->get();
         return view('posts.add', compact('users', 'tags'));
@@ -31,6 +33,7 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
+        Gate::authorize('create-post'); //to avoid that anyone can open the create link directly.
         $request->validate([
             'title' => ['required', 'string', 'min:3'],
             'description' => ['required', 'string', 'max:1500'],

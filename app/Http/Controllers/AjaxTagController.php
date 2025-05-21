@@ -4,17 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Tag;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Gate;
 
-class TagController extends Controller
+class AjaxTagController extends Controller
 {
 
-    //only admins can see this page
-    // public function __construct()
-    // {
-    //     Gate::authorize('admin-control');
-
-    // }
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +15,7 @@ class TagController extends Controller
     {
         //$tags = Tag::all(); //في حالة مش هستخدم links in index file
         $tags = Tag::paginate(); //في حالة استخدام links
-        return view('tags.index', compact('tags'));
+        return view('ajax-tags.index', compact('tags'));
     }
 
     /**
@@ -30,7 +23,7 @@ class TagController extends Controller
      */
     public function create()
     {
-        return view('tags.create');
+        return view('ajax-tags.create');
     }
 
     /**
@@ -42,7 +35,7 @@ class TagController extends Controller
             'name' => 'required|string|min:3'
         ]);
         Tag::create($data);
-        return back()->with('success', 'Tag Added Successfully');
+        return response()->json(['status'=>'success','message'=>'data added successfully']);
     }
 
     /**
@@ -59,30 +52,31 @@ class TagController extends Controller
     public function edit(string $id)
     {
         $tag = Tag::findOrFail($id);
-        Gate::authorize('view', $tag);
-        return view('tags.edit', compact('tag'));
+       
+        return view('ajax-tags.edit', compact('tag'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Tag $tag)
+    public function update(Request $request, Tag $ajax_tag)
     {
-        Gate::authorize('view', $tag);
+       
         $request->validate([
             'name' => 'required|string|min:3'
         ]);
-        $tag->update(['name' => $request->name]);
-        $tag->save();
-        return redirect()->route('tags.index')->with('success', "Data Updated Successfully");
+        // $tag->update(['name' => $request->name]);
+        $ajax_tag->name = $request->name;
+        $ajax_tag->save();
+        return response()->json(['status'=>'success','message'=>'data updated successfully']);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tag $tag)
+    public function destroy(Tag $ajax_tag)
     {
-        $tag->delete();
-        return back()->with('success', 'Tag Deleted Successfully');
+        $ajax_tag->delete();
+        return response()->json(['status'=>'success','message'=>'data deleted successfully']);
     }
 }

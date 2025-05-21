@@ -4,10 +4,17 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
+     //only admins can see this page
+    // public function __construct()
+    // {
+    //     Gate::authorize('admin-control');
+
+    // }
     /**
      * Display a listing of the resource.
      */

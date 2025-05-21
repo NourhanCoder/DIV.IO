@@ -11,6 +11,10 @@
             {{ $post->user->name }} - {{ $post->created_at->format ('Y-m-d') }}
         </div>
         <div class="card-body">
+            <div class="card-img">
+                <img src="{{ $post->image() }}" width="100%" height="400" alt="">
+            </div>
+        <div class="card-body">
             <h5 class="card-title">{{ $post->title }}</h5>
             <p class="card-text">{{$post->description}}</p>
         </div>
