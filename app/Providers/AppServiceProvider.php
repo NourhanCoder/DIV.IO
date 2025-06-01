@@ -18,18 +18,32 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         //only writer role can create post
-        Gate::define('create-post', function(User $user){
+        Gate::define('create-post', function (User $user) {
             return $user->type == "writer";
         });
 
-        //only for admins
-        Gate::define('admin-control', function(User $user){
+        //only for admins general control
+        Gate::define('admin-control', function (User $user) {
             return $user->type == "admin";
         });
-         
-        //user who created the post only one who can edit it
-        Gate::define('update-post', function(User $user, Post $post){
-            return $user->id == $post->user_id;
+
+        //Writer can delete and edit his own posts only
+        //admin can manage all posts
+        Gate::define('update-post', function (User $user, Post $post) {
+            //return $user->id == $post->user_id;
+            if ($user->type === 'admin') {
+                return true;
+            }
+
+            return $user->type === 'writer' && $user->id === $post->user_id;
+        });
+
+        Gate::define('delete-post', function (User $user, Post $post) {
+            if ($user->type === 'admin') {
+                return true;
+            }
+
+            return $user->type === 'writer' && $user->id === $post->user_id;
         });
     }
 
